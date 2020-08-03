@@ -85,7 +85,9 @@ void AProjectile::OnProjectileImpact(UPrimitiveComponent* HitComponent, AActor* 
 {
 	if (OtherActor)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("IMPACT")));
 		UGameplayStatics::ApplyPointDamage(OtherActor, Damage, NormalImpulse, Hit, GetInstigator()->Controller, this, DamageType);
+
 	}
 
 	Destroy();

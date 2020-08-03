@@ -33,14 +33,13 @@ AMultiplayerTestCharacter::AMultiplayerTestCharacter()
 	//GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
-	GetCharacterMovement()->AirControl = 0.4f;
+	GetCharacterMovement()->AirControl = 0.2f;
 
 	GetMesh()->SetOwnerNoSee(true);
 
 	// Create a follow camera
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -55,6 +54,8 @@ AMultiplayerTestCharacter::AMultiplayerTestCharacter()
 	//Initialize fire rate
 	FireRate = 0.1f;
 	bIsFiringWeapon = false;
+
+	bIsProned = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,6 +70,9 @@ void AMultiplayerTestCharacter::SetupPlayerInputComponent(class UInputComponent*
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMultiplayerTestCharacter::HandleCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMultiplayerTestCharacter::HandleUnCrouch);
+
+	//PlayerInputComponent->BindAction("Prone", IE_Pressed, this, &AMultiplayerTestCharacter::HandleStartProne);
+	//PlayerInputComponent->BindAction("Prone", IE_Released, this, &AMultiplayerTestCharacter::HandleStopProne);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMultiplayerTestCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMultiplayerTestCharacter::MoveRight);
@@ -156,8 +160,8 @@ void AMultiplayerTestCharacter::GetLifetimeReplicatedProps(TArray <FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//Replicate current health.
 	DOREPLIFETIME(AMultiplayerTestCharacter, CurrentHealth);
+	DOREPLIFETIME(AMultiplayerTestCharacter, bIsProned);
 }
 
 void AMultiplayerTestCharacter::OnHealthUpdate()
@@ -240,10 +244,36 @@ void AMultiplayerTestCharacter::HandleFire_Implementation()
 void AMultiplayerTestCharacter::HandleCrouch()
 {
 	Crouch(false);
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, CrouchedEyeHeight));
 }
 
 
 void AMultiplayerTestCharacter::HandleUnCrouch()
 {
 	UnCrouch(false);
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
+}
+
+void AMultiplayerTestCharacter::HandleStartProne()
+{
+	StartProne();
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, CrouchedEyeHeight));
+}
+
+
+void AMultiplayerTestCharacter::HandleStopProne()
+{
+	StopProne();
+}
+
+void AMultiplayerTestCharacter::StartProne_Implementation()
+{
+	bIsProned = true;
+	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+}
+
+void AMultiplayerTestCharacter::StopProne_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	bIsProned = false;
 }

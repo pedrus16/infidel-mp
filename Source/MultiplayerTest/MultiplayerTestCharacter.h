@@ -20,13 +20,13 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	float CurrentHealth;
 
-	///** Camera boom positioning the camera behind the character */
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	//class USpringArmComponent* CameraBoom;
-
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
+
+	UPROPERTY(replicated)
+	bool bIsProned;
+
 public:
 	AMultiplayerTestCharacter();
 
@@ -105,16 +105,21 @@ protected:
 	void HandleCrouch();
 	void HandleUnCrouch();
 
+	void HandleStartProne();
+	void HandleStopProne();
+
+	UFUNCTION(Server, Reliable)
+	void StartProne();
+	UFUNCTION(Server, Reliable)
+	void StopProne();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
 public:
-	///** Returns CameraBoom subobject **/
-	//FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FirstPersonCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponentl() const { return FirstPersonCameraComponent; }
+	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	/** Getter for Max Health. */
 	UFUNCTION(BlueprintPure, Category = "Health")
@@ -131,4 +136,8 @@ public:
 	/** Event for taking damage. Overridden from APawn.*/
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	/** Getter for Current Health.*/
+	UFUNCTION(BlueprintPure, Category = "Prone")
+	FORCEINLINE bool GetIsProned() const { return bIsProned; }
 };
