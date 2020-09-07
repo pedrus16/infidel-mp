@@ -10,6 +10,10 @@ UCLASS()
 class MULTIPLAYERTEST_API ABearTrap : public AActor
 {
 	GENERATED_BODY()
+
+protected:
+	FTimerHandle DamageTickTimer;
+	//AMultiplayerTestCharacter* TrappedCharacter;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -18,12 +22,28 @@ public:
 	UPROPERTY()
 	bool bTrapTriggered;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	float InitialDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	float TickDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	float TickRate;
+
+	//The damage type and damage that will be done by this projectile
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	TSubclassOf<class UDamageType> DamageType;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(Server, Reliable)
+	void DealTickDamage();
 
 public:	
 	// Called every frame

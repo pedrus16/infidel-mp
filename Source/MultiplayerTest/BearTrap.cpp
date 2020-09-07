@@ -6,7 +6,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
-#include "MultiplayerTestCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -48,6 +47,10 @@ ABearTrap::ABearTrap()
 	}
 	
 	bTrapTriggered = false;
+	InitialDamage = 25.0f;
+	TickDamage = 1.0f;
+	TickRate = 1.0f;
+	DamageType = UDamageType::StaticClass();
 }
 
 // Called when the game starts or when spawned
@@ -66,23 +69,38 @@ void ABearTrap::Tick(float DeltaTime)
 
 void ABearTrap::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && !bTrapTriggered) {
-		ACharacter* character = dynamic_cast<ACharacter*>(OtherActor);
+	//if (OtherActor && !bTrapTriggered) {
+	//	AMultiplayerTestCharacter* character = dynamic_cast<AMultiplayerTestCharacter*>(OtherActor);
 
-		if (character == NULL) 
-			return;
+	//	if (character == NULL) 
+	//		return;
 
-		UCharacterMovementComponent* movement = character->GetCharacterMovement();
+	//	TrappedCharacter = character;
 
-		// TODO Add delay before locking the player. Also check that they are still in the trigger when the lock actually happens.
-		movement->MaxWalkSpeed = 0.0f;
-		movement->MaxWalkSpeedCrouched = 0.0f;
-		movement->SetJumpAllowed(false);
-		//UGameplayStatics::ApplyDamage(OtherActor, 5.0f, GetInstigator()->Controller, this, UDamageType::StaticClass());
-		bTrapTriggered = true;
-		SkeletalMeshComponent->Play(false);
-	}
+	//	UCharacterMovementComponent* movement = character->GetCharacterMovement();
+
+	//	// TODO Add delay before locking the player. Also check that they are still in the trigger when the lock actually happens.
+	//	UGameplayStatics::ApplyDamage(OtherActor, InitialDamage, NULL, this, DamageType);
+	//	movement->MaxWalkSpeed = 0.0f;
+	//	movement->MaxWalkSpeedCrouched = 0.0f;
+	//	movement->SetJumpAllowed(false);
+	//	bTrapTriggered = true;
+	//	SkeletalMeshComponent->Play(false);
+
+	//	GetWorld()->GetTimerManager().SetTimer(DamageTickTimer, this, &ABearTrap::DealTickDamage, TickRate, false);
+
+	//	//UGameplayStatics::ApplyPointDamage(OtherActor, Damage, NormalImpulse, Hit, GetInstigator()->Controller, this, DamageType);
+	//}
 }
 
+void ABearTrap::DealTickDamage_Implementation()
+{
+	//if (!TrappedCharacter) return;
 
+	//UGameplayStatics::ApplyDamage(TrappedCharacter, TickDamage, NULL, this, DamageType);
+
+	//if (TrappedCharacter->GetCurrentHealth() <= 0) return;
+
+	//GetWorld()->GetTimerManager().SetTimer(DamageTickTimer, this, &ABearTrap::DealTickDamage, TickRate, false);
+}
 
